@@ -1,39 +1,51 @@
 let workouts = JSON.parse(localStorage.getItem("workouts")) || [];
 
+function save() {
+  localStorage.setItem("workouts", JSON.stringify(workouts));
+}
+
 function addWorkout() {
   let exercise = document.getElementById("exercise").value;
   let weight = document.getElementById("weight").value;
-  let sets = document.getElementById("sets").value;
   let reps = document.getElementById("reps").value;
 
-  if (!exercise || !weight || !sets || !reps) return;
+  if (!exercise || !weight || !reps) return;
 
-  workouts.push({ exercise, weight, sets, reps });
-  localStorage.setItem("workouts", JSON.stringify(workouts));
+  workouts.push({
+    exercise,
+    weight,
+    reps
+  });
 
+  save();
   display();
+
+  document.getElementById("exercise").value = "";
+  document.getElementById("weight").value = "";
+  document.getElementById("reps").value = "";
 }
 
 function deleteWorkout(index) {
   workouts.splice(index, 1);
-  localStorage.setItem("workouts", JSON.stringify(workouts));
+  save();
   display();
 }
 
 function editWorkout(index) {
-  let newExercise = prompt("Edit exercise:", workouts[index].exercise);
-  let newWeight = prompt("Edit weight:", workouts[index].weight);
-  let newSets = prompt("Edit sets:", workouts[index].sets);
-  let newReps = prompt("Edit reps:", workouts[index].reps);
+  let w = workouts[index];
 
-  if (newExercise && newWeight && newSets && newReps) {
+  let newExercise = prompt("Edit exercise:", w.exercise);
+  let newWeight = prompt("Edit weight:", w.weight);
+  let newReps = prompt("Edit reps:", w.reps);
+
+  if (newExercise && newWeight && newReps) {
     workouts[index] = {
       exercise: newExercise,
       weight: newWeight,
-      sets: newSets,
       reps: newReps
     };
-    localStorage.setItem("workouts", JSON.stringify(workouts));
+
+    save();
     display();
   }
 }
@@ -43,15 +55,22 @@ function display() {
   list.innerHTML = "";
 
   workouts.forEach((w, index) => {
-    let li = document.createElement("li");
+    let div = document.createElement("div");
+    div.className = "workout";
 
-    li.innerHTML = `
-      ${w.exercise} - ${w.weight}kg (${w.sets} sets x ${w.reps} reps)
-      <button onclick="editWorkout(${index})">Edit</button>
-      <button onclick="deleteWorkout(${index})">Delete</button>
+    div.innerHTML = `
+      <div>
+        <strong>${w.exercise}</strong>
+        <div>${w.weight} kg • ${w.reps} reps</div>
+      </div>
+
+      <div>
+        <button onclick="editWorkout(${index})">Edit</button>
+        <button onclick="deleteWorkout(${index})">Delete</button>
+      </div>
     `;
 
-    list.appendChild(li);
+    list.appendChild(div);
   });
 }
 
